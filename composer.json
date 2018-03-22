@@ -1,0 +1,11 @@
+{
+    "name": "boilerkit/php",
+    "description": "php",
+    "authors": [
+        {
+            "name": "Branden Garrett",
+            "email": "branden.garrett@gmail.com"
+        }
+    ],
+    "require": {}
+}
