@@ -80,4 +80,7 @@ RUN mkdir /app/storage
 RUN chown -R www-data:www-data /app/storage
 
 #
+WORKDIR /app
+
+#
 COPY conf/php.ini /usr/local/etc/php/
