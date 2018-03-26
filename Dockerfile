@@ -1,86 +1,68 @@
-#
-FROM php:7.2-fpm
+# https://github.com/docker-library/php/blob/master/7.2/alpine3.7/fpm/Dockerfile
+FROM php:7.2-fpm-alpine3.7
 
-#
-ENV DEBIAN_FRONTEND noninteractive
+ENV PHPIZE_DEPS $PHPIZE_DEPS
 
-#
-RUN usermod -u 1000 www-data
-RUN usermod -G staff www-data
-
-#
-RUN apt-get update \
-    && apt-get install -y apt-utils
-
-#
-RUN apt-get update \
-    && apt-get install -y g++ \
-    && apt-get install -y git \
-    && apt-get install -y gnupg2 \
-    && apt-get install -y pkg-config \
-    && apt-get install -y wget
-
-#
-RUN apt-get update \
-    && apt-get install -y libcurl4-openssl-dev \
-    && apt-get install -y libfreetype6-dev \
-    && apt-get install -y libgmp-dev \
-    && apt-get install -y libicu-dev \
-    && apt-get install -y libjpeg62-turbo-dev \
-    && apt-get install -y libmagickwand-dev \
-    && apt-get install -y libmcrypt-dev \
-    && apt-get install -y libpng-dev \
-    && apt-get install -y libpq-dev \
-    && apt-get install -y libssl-dev \
-    && apt-get install -y libzip-dev
-
-#
-RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list
-RUN wget -q https://www.postgresql.org/media/keys/ACCC4CF8.asc -O - | apt-key add - && apt-get update
-RUN apt-get update \
-    && apt-get install -y postgresql-client-10 \
-    && apt-get install -y postgresql-doc-10 \
-    && apt-get install -y postgresql-server-dev-10
-
-#
-RUN docker-php-ext-install dom
-RUN docker-php-ext-install gd
-RUN docker-php-ext-install iconv
-RUN docker-php-ext-install intl
-RUN docker-php-ext-install json
-RUN docker-php-ext-install mbstring
-RUN docker-php-ext-install pdo
-RUN docker-php-ext-install pdo_pgsql
-RUN docker-php-ext-install xml
-RUN docker-php-ext-install zip
-
-#
-# RUN docker-php-ext-configure intl
-#
-
-#
-#RUN pecl install mcrypt-1.0.1 \
-#    && docker-php-ext-enable mcrypt-1.0.1
-
-RUN pecl install imagick \
-    && docker-php-ext-enable imagick
-
-RUN pecl install redis \
-    && docker-php-ext-enable redis
-
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug
+RUN apk add --no-cache --update --virtual .phpize-deps $PHPIZE_DEPS \
+    freetype-dev \
+    libpng-dev \
+    libtool \
+    libxml2-dev \
+    postgresql-dev \
+    \
+    && apk add --no-cache --update \
+      icu-dev \
+      imagemagick-dev \
+      libjpeg-turbo-dev \
+      libzip-dev \
+    \
+    && apk add --no-cache --update \
+      git \
+      postgresql \
+      shadow \
+      wget \
+      zsh \
+    \
+    && docker-php-ext-configure gd \
+        --with-freetype-dir=/usr/include/ \
+        --with-png-dir=/usr/include/ \
+        --with-jpeg-dir=/usr/include/ \
+    && docker-php-ext-install gd \
+    \
+    && docker-php-ext-install intl \
+    \
+    && docker-php-ext-configure zip --with-libzip \
+    && docker-php-ext-install zip \
+    \
+    && docker-php-ext-install pdo_pgsql \
+    \
+    && pecl install imagick-3.4.3 \
+    && docker-php-ext-enable imagick \
+    \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    \
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    \
+    && apk del .phpize-deps
 
 #
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 #
-RUN mkdir /app
-RUN mkdir /app/storage
-RUN chown -R www-data:www-data /app/storage
+RUN mkdir /var/www/.composer \
+    && chown -R www-data:www-data /var/www/.composer
 
 #
-WORKDIR /app
+ENV PATH "$PATH:./vendor/bin"
 
 #
 COPY conf/php.ini /usr/local/etc/php/
+
+#
+RUN chsh --shell /bin/zsh root \
+  && chsh --shell /bin/zsh www-data
+
+#
+WORKDIR /app
