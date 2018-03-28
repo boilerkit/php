@@ -48,7 +48,7 @@ RUN apk add --no-cache --update --virtual .phpize-deps $PHPIZE_DEPS \
     && apk del .phpize-deps
 
 #
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN curl -sS "https://getcomposer.org/installer" | php -- --install-dir=/usr/local/bin --filename=composer
 
 #
 RUN mkdir /var/www/.composer \
@@ -64,5 +64,5 @@ COPY conf/php.ini /usr/local/etc/php/
 RUN chsh --shell /bin/zsh root \
   && chsh --shell /bin/zsh www-data
 
-#
+# 
 WORKDIR /app
