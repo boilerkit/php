@@ -11,6 +11,7 @@ RUN apk add --no-cache --update --virtual .phpize-deps $PHPIZE_DEPS \
     postgresql-dev \
     \
     && apk add --no-cache --update \
+      gmp-dev \
       icu-dev \
       imagemagick-dev \
       libjpeg-turbo-dev \
@@ -30,6 +31,12 @@ RUN apk add --no-cache --update --virtual .phpize-deps $PHPIZE_DEPS \
     && docker-php-ext-install gd \
     \
     && docker-php-ext-install intl \
+    \
+    && docker-php-ext-install soap \
+    \
+    && docker-php-ext-install bcmath \
+    \
+    && docker-php-ext-install gmp \
     \
     && docker-php-ext-configure zip --with-libzip \
     && docker-php-ext-install zip \
