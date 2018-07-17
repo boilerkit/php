@@ -20,6 +20,7 @@ RUN apk add --no-cache --update --virtual .phpize-deps $PHPIZE_DEPS \
     \
     && apk add --no-cache --update \
       git \
+      hiredis \
       postgresql \
       shadow \
       wget \
